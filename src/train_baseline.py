@@ -16,7 +16,7 @@ os.makedirs("data", exist_ok=True)
 iris_df = X.copy()
 iris_df['target'] = y
 iris_df.to_csv("data/iris.csv", index=False)
-
+print(iris_df.head())
 # ----------------------------
 # Split train/test
 # ----------------------------
