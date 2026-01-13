@@ -3,4 +3,4 @@ __pycache__/
 .venv/
 models/
 .DS_Store
-.dvc/
+.dvc/config
