@@ -1,9 +1,8 @@
 name: Build and Deploy to AWS EC2
 
-# Déclencheur : à chaque push sur main
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "test-deploy"]
 
 env:
   IMAGE_NAME: ghcr.io/helabhl/mlops-project:latest
@@ -16,28 +15,24 @@ jobs:
       packages: write
 
     steps:
-      # 1️⃣ Checkout du code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Login au registre GHCR
-      - name: Login to GitHub Container Registry
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PAT }}
 
-      # 3️⃣ Build et Push de l'image Docker
       - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./iris_api       # Build depuis le dossier de l'API
+          context: ./iris_api
           file: ./iris_api/Dockerfile
           push: true
           tags: ${{ env.IMAGE_NAME }}
 
-      # 4️⃣ Déploiement sur EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -45,19 +40,19 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 4.1 Login Docker sur EC2
+            # Login Docker sur EC2
             echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # 4.2 Créer le dossier de l'app si pas existant
+            # Créer le dossier de l'app si pas existant
             mkdir -p /home/ubuntu/app
             cd /home/ubuntu/app
 
-            # 4.3 Arrêter et supprimer l'ancien conteneur si existant
+            # Arrêter et supprimer l'ancien conteneur si existant
             docker stop iris_api || true
             docker rm iris_api || true
 
-            # 4.4 Pull de la nouvelle image
+            # Pull de la nouvelle image
             docker pull ${{ env.IMAGE_NAME }}
 
-            # 4.5 Lancer le conteneur sur le port 5000
+            # Lancer le conteneur sur le port 5001
             docker run -d -p 5001:5001 --name iris_api ${{ env.IMAGE_NAME }}
