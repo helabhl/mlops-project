@@ -12,3 +12,7 @@ passlib
 pymysql
 bcrypt
 optuna>=3.0.0
+fastapi
+uvicorn
+pydantic
+joblib

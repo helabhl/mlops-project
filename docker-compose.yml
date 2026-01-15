@@ -17,6 +17,12 @@ services:
       AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
 
+  iris-api:
+    image: ghcr.io/helabhl/mlops-project:latest
+    container_name: iris-api
+    ports:
+      - "5001:5001"
+  
   zenml-db:
     image: mysql:8.0
     container_name: zenml-db
